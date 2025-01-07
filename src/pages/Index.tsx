@@ -1,7 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Code2, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { BookOpen, Code2, LogOut, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface Course {
   id: string;
@@ -13,6 +16,7 @@ interface Course {
 }
 
 const Index = () => {
+  const navigate = useNavigate();
   const { data: courses, isLoading, error } = useQuery({
     queryKey: ["courses"],
     queryFn: async () => {
@@ -24,6 +28,16 @@ const Index = () => {
       return data as Course[];
     },
   });
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate("/auth");
+      toast.success("Sesión cerrada correctamente");
+    } catch (error) {
+      toast.error("Error al cerrar sesión");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -44,11 +58,17 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Aprende a Programar</h1>
-          <p className="text-muted-foreground text-lg">
-            Explora nuestros cursos y comienza tu viaje en la programación
-          </p>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Aprende a Programar</h1>
+            <p className="text-muted-foreground text-lg">
+              Explora nuestros cursos y comienza tu viaje en la programación
+            </p>
+          </div>
+          <Button variant="outline" onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Cerrar Sesión
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
